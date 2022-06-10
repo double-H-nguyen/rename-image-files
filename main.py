@@ -1,10 +1,12 @@
+from hashlib import new
 from exif import Image
 from geopy.geocoders import Nominatim
+import os
 
 def main():
     # ask user to input directory of images
-    #file_path = input("Copy and paste the directory in which you want the script to execute in: ")
-    file_path = "20160712_174018.jpg" # test only
+    file_path = input("Copy and paste the directory in which you want the script to execute in: ")
+    root, file_extension = os.path.splitext(file_path)
 
     # Read binary of image file and instantiate as exif Image object
     with open(file_path, "rb") as file:
@@ -24,7 +26,8 @@ def main():
     road, city, state, country = get_address(latitude, longitude)
 
     # rename file
-    print(f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}")
+    new_filename = f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}" + file_extension
+    os.rename(file_path, new_filename)
 
 
 # extract exif data from image and package into list
