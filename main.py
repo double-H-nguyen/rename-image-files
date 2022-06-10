@@ -5,29 +5,36 @@ import os
 
 def main():
     # ask user to input directory of images
-    file_path = input("Copy and paste the directory in which you want the script to execute in: ")
-    root, file_extension = os.path.splitext(file_path)
+    source_dir = input("Copy and paste the directory in which you want the script to execute in: ")
 
-    # Read binary of image file and instantiate as exif Image object
-    with open(file_path, "rb") as file:
-        image = Image(file)
+    with os.scandir(source_dir) as entries:
+        for entry in entries:
+            file_path = entry.path
+            root, file_extension = os.path.splitext(file_path)
 
-    # if image does not have exif data, skip image (don't rename)
-    #if not image.has_exif:
-        #continue
+            # Read binary of image file and instantiate as exif Image object
+            with open(file_path, "rb") as file:
+                image = Image(file)
 
-    # extract EXIF data from image
-    image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref = get_exif_data(image)
+            # if image does not have exif data, skip image (don't rename)
+            if not image.has_exif:
+                print(f"Skipped {entry.name}")
+                continue
 
-    # convert GPS coordinates
-    latitude, longitude = DMS_to_DD(image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref)
+            # extract EXIF data from image
+            image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref = get_exif_data(image)
 
-    # get address from DD
-    road, city, state, country = get_address(latitude, longitude)
+            # convert GPS coordinates
+            latitude, longitude = DMS_to_DD(image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref)
 
-    # rename file
-    new_filename = f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}" + file_extension
-    os.rename(file_path, new_filename)
+            # get address from DD
+            road, city, state, country = get_address(latitude, longitude)
+
+            # rename file
+            new_filename = f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}" + file_extension
+            destination = os.path.join(source_dir, new_filename)
+            print(f"Converting {entry.name} to {new_filename}")
+            os.rename(file_path, destination)
 
 
 # extract exif data from image and package into list
