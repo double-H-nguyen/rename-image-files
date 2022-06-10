@@ -15,7 +15,6 @@ def main():
 
     # extract EXIF data from image
     image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref = get_exif_data(image)
-    print(image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref)
 
     # convert GPS coord from DMS to DD
 
@@ -23,9 +22,12 @@ def main():
 
     # rename file
 
+
 # extract exif data from image and package into list
 def get_exif_data(image):
-    return [image.datetime_original, image.make, image.model, image.gps_latitude, image.gps_latitude_ref, image.gps_longitude, image.gps_longitude_ref]
+    image_datetime = image.datetime_original.replace(":","_").replace(" ","_") # TODO: refactor using re.sub()
+    return [image_datetime, image.make, image.model, image.gps_latitude, image.gps_latitude_ref, image.gps_longitude, image.gps_longitude_ref]
+
 
 if __name__ == "__main__":
     main()
