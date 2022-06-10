@@ -16,7 +16,8 @@ def main():
     # extract EXIF data from image
     image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref = get_exif_data(image)
 
-    # convert GPS coord from DMS to DD
+    # convert GPS coordinates
+    latitude, longitude = DMS_to_DD(image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref)
 
     # get address from DD
 
@@ -27,6 +28,19 @@ def main():
 def get_exif_data(image):
     image_datetime = image.datetime_original.replace(":","_").replace(" ","_") # TODO: refactor using re.sub()
     return [image_datetime, image.make, image.model, image.gps_latitude, image.gps_latitude_ref, image.gps_longitude, image.gps_longitude_ref]
+
+
+# convert GPS coord from DMS (Degree, Minutes, Seconds) to DD (Decimal Degrees)
+def DMS_to_DD(latitude_DMS, latitude_ref, longitude_DMS, longitude_ref):
+    # Convert latitude
+    d, m, s = latitude_DMS
+    latitude_DD = (d + m / 60.0 + s / 3600.0) * (1 if latitude_ref == "N" else -1)
+    
+    # Convert longitude
+    d, m, s = longitude_DMS
+    longitude_DD = (d + m / 60.0 + s / 3600.0) * (-1 if longitude_ref == "W" else 1)
+
+    return [latitude_DD, longitude_DD]
 
 
 if __name__ == "__main__":
