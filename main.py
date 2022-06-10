@@ -31,10 +31,18 @@ def main():
             road, city, state, country = get_address(latitude, longitude)
 
             # rename file
-            new_filename = f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}" + file_extension
-            destination = os.path.join(source_dir, new_filename)
-            print(f"Converting {entry.name} to {new_filename}")
-            os.rename(file_path, destination)
+            try:
+                new_filename = f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}" + file_extension
+                destination = os.path.join(source_dir, new_filename)
+                print(f"Converting {entry.name} to {new_filename}")
+                os.rename(file_path, destination)
+            except: # error handling if there are duplicate image(s)
+                print("Duplicate found!")
+                new_filename = f"{image_datetime}_{road}_{city}_{state}_{country}_{image_make}_{image_model}" + " - copy" + file_extension
+                destination = os.path.join(source_dir, new_filename)
+                print(f"Converting {entry.name} to {new_filename}")
+                os.rename(file_path, destination)
+
 
 
 # extract exif data from image and package into list
