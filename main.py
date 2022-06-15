@@ -5,7 +5,9 @@ import os
 
 def main():
     # ask user to input directory of images
+    print('-'*100)
     source_dir = input("Copy and paste the directory in which you want the script to execute in: ")
+    print('-'*100)
 
     with os.scandir(source_dir) as entries:
         for entry in entries:
