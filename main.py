@@ -4,58 +4,65 @@ from geopy.geocoders import Nominatim
 import os
 
 def main():
-    # ask user to input directory of images
-    print('-'*100)
-    source_dir = input("Copy and paste the directory in which you want the script to execute in: ")
-    print('-'*100)
+    run_script = True
+    while (run_script):
+        # ask user to input directory of images
+        print('-'*100)
+        source_dir = input("Copy and paste the directory in which you want the script to execute in or type 'quit' to exit script: ")
+        print('-'*100)
 
-    with os.scandir(source_dir) as entries:
-        for entry in entries:
-            file_path = entry.path
-            root, file_extension = os.path.splitext(file_path)
+        # Check if need to exit loop
+        if (source_dir.lower() == 'quit'):
+            run_script = False
+            continue
 
-            if file_extension != ".jpg" and file_extension != ".png":
-                print(f"Skipped {entry.name}. Not an image.")
-                continue
+        with os.scandir(source_dir) as entries:
+            for entry in entries:
+                file_path = entry.path
+                root, file_extension = os.path.splitext(file_path)
 
-            # Read binary of image file and instantiate as exif Image object
-            with open(file_path, "rb") as file:
-                image = Image(file)
+                if file_extension != ".jpg" and file_extension != ".png":
+                    print(f"Skipped {entry.name}. Not an image.")
+                    continue
 
-            # if image does not have exif data, skip image (don't rename)
-            if not image.has_exif:
-                print(f"Skipped {entry.name}. Does not contain exif data.")
-                continue
+                # Read binary of image file and instantiate as exif Image object
+                with open(file_path, "rb") as file:
+                    image = Image(file)
 
-            # extract EXIF data from image
-            image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref = get_exif_data(image)
-            
-            if image_datetime is None:
-                print(f"Skipped {entry.name}. No datetime.")
-                continue
+                # if image does not have exif data, skip image (don't rename)
+                if not image.has_exif:
+                    print(f"Skipped {entry.name}. Does not contain exif data.")
+                    continue
 
-            if image_gps_lat is not None:
-                # convert GPS coordinates
-                latitude, longitude = DMS_to_DD(image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref)
-                # get address from DD
-                road, city, state, country = get_address(latitude, longitude)
+                # extract EXIF data from image
+                image_datetime, image_make, image_model, image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref = get_exif_data(image)
+                
+                if image_datetime is None:
+                    print(f"Skipped {entry.name}. No datetime.")
+                    continue
 
-            # rename file
-            if image_gps_lat is not None:
-                new_filename = generate_new_filename(image_datetime, image_make, image_model, road, city, state, country)
-            else:
-                new_filename = generate_new_filename(image_datetime, image_make, image_model)
-            try:
-                new_filename += file_extension
-                destination = os.path.join(source_dir, new_filename)
-                print(f"Converting {entry.name} to {new_filename}")
-                os.rename(file_path, destination)
-            except: # error handling if there are duplicate image(s)
-                print("Duplicate found!")
-                new_filename += f" - copy{file_extension}"
-                destination = os.path.join(source_dir, new_filename)
-                print(f"Converting {entry.name} to {new_filename}")
-                os.rename(file_path, destination)
+                if image_gps_lat is not None:
+                    # convert GPS coordinates
+                    latitude, longitude = DMS_to_DD(image_gps_lat, image_gps_lat_ref, image_gps_long, image_gps_long_ref)
+                    # get address from DD
+                    road, city, state, country = get_address(latitude, longitude)
+
+                # rename file
+                if image_gps_lat is not None:
+                    new_filename = generate_new_filename(image_datetime, image_make, image_model, road, city, state, country)
+                else:
+                    new_filename = generate_new_filename(image_datetime, image_make, image_model)
+                try:
+                    new_filename += file_extension
+                    destination = os.path.join(source_dir, new_filename)
+                    print(f"Converting {entry.name} to {new_filename}")
+                    os.rename(file_path, destination)
+                except: # error handling if there are duplicate image(s)
+                    print("Duplicate found!")
+                    new_filename += f" - copy{file_extension}"
+                    destination = os.path.join(source_dir, new_filename)
+                    print(f"Converting {entry.name} to {new_filename}")
+                    os.rename(file_path, destination)
 
 
 # extract exif data from image and package into list
