@@ -21,6 +21,8 @@ def main():
                 file_path = entry.path
                 root, file_extension = os.path.splitext(file_path)
 
+                file_extension = file_extension.lower()
+
                 if file_extension != ".jpg" and file_extension != ".png":
                     print(f"Skipped {entry.name}. Not an image.")
                     continue
