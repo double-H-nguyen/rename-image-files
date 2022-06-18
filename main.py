@@ -115,17 +115,36 @@ def get_address(latitude, longitude):
     geolocator = Nominatim(user_agent="http")
     location = geolocator.reverse(coord_decimal)
 
-    road = location.raw.get('address').get('road').replace(" ", "")
-    city = location.raw.get('address').get('city').replace(" ", "")
-    state = location.raw.get('address').get('state').replace(" ", "")
-    country = location.raw.get('address').get('country').replace(" ", "")
+    try:
+        road = location.raw.get('address').get('road').replace(" ", "")
+    except:
+        road = None
+    try:
+        city = location.raw.get('address').get('city').replace(" ", "")
+    except:
+        city = None
+    try:
+        state = location.raw.get('address').get('state').replace(" ", "")
+    except:
+        state = None
+    try:
+        country = location.raw.get('address').get('country').replace(" ", "")
+    except:
+        country = None
+        
     return [road, city, state, country]
 
 
 def generate_new_filename(image_datetime, image_make, image_model, road=None, city=None, state=None, country=None):
     filename = f"{image_datetime}"
     if road is not None:
-        filename += f"_{road}_{city}_{state}_{country}"
+        filename += f"_{road}"
+    if city is not None:
+        filename += f"_{city}"
+    if state is not None:
+        filename += f"_{state}"
+    if country is not None:
+        filename += f"_{country}"
     if image_make is not None:
         filename += f"_{image_make}"
     if image_model is not None:
