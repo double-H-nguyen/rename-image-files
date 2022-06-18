@@ -28,8 +28,12 @@ def main():
                     continue
 
                 # Read binary of image file and instantiate as exif Image object
-                with open(file_path, "rb") as file:
-                    image = Image(file)
+                try:
+                    with open(file_path, "rb") as file:
+                        image = Image(file)
+                except:
+                    print(f"Skipped {entry.name}. Cannot extract exif data from image.")
+                    continue 
 
                 # if image does not have exif data, skip image (don't rename)
                 if not image.has_exif:
