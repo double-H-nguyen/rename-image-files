@@ -2,6 +2,7 @@ from hashlib import new
 from exif import Image
 from geopy.geocoders import Nominatim
 import os
+import re
 
 def main():
     run_script = True
@@ -74,7 +75,8 @@ def main():
 # extract exif data from image and package into list
 def get_exif_data(image):
     try:
-        image_datetime = image.datetime_original.replace(":","_").replace(" ","_") # TODO: refactor using re.sub()
+        image_datetime = image.datetime_original
+        image_datetime = re.sub(r'\s|\:', '_', image_datetime) # replace colons and white space with underscores using regex
     except:
         image_datetime = None
 
